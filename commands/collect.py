@@ -213,8 +213,6 @@ def collect(arguments):
         default_region = 'us-gov-west-1'
     elif 'cn-' in default_region:
         default_region = 'cn-north-1'
-    else:
-        default_region = 'us-east-1'
 
     regions_filter = None
     if len(arguments.regions_filter) > 0:
@@ -229,7 +227,7 @@ def collect(arguments):
         session_data["profile_name"] = arguments.profile_name
 
     session = boto3.Session(**session_data)
-    sts = session.client("sts", region_name="ap-southeast-1", endpoint_url="https://sts.ap-southeast-1.amazonaws.com")
+    sts = session.client("sts", endpoint_url="https://sts.ap-southeast-1.amazonaws.com")
     try:
         sts.get_caller_identity()
     except ClientError as e:
@@ -249,26 +247,26 @@ def collect(arguments):
             exit(-1)
 
     # Ensure we can make iam calls
-    iam = session.client("iam")
-    try:
-        iam.get_user(UserName="test")
-    except ClientError as e:
-        if "InvalidClientTokenId" in str(e):
-            print(
-                "ERROR: AWS doesn't allow you to make IAM calls from a session without MFA, and the collect command gathers IAM data.  Please use MFA or don't use a session. With aws-vault, specify `--no-session` on your `exec`.",
-                flush=True,
-            )
-            exit(-1)
-        if "NoSuchEntity" in str(e):
-            # Ignore, we're just testing that our creds work
-            pass
-        else:
-            print("ERROR: Ensure your creds are valid.", flush=True)
-            print(e, flush=True)
-            exit(-1)
-    except NoCredentialsError:
-        print("ERROR: No AWS credentials configured.", flush=True)
-        exit(-1)
+    #iam = session.client("iam")
+    #try:
+    #    iam.get_user(UserName="test")
+    #except ClientError as e:
+    #    if "InvalidClientTokenId" in str(e):
+    #        print(
+    #            "ERROR: AWS doesn't allow you to make IAM calls from a session without MFA, and the collect command gathers IAM data.  Please use MFA or don't use a session. With aws-vault, specify `--no-session` on your `exec`.",
+    #            flush=True,
+    #        )
+    #        exit(-1)
+    #    if "NoSuchEntity" in str(e):
+    #        # Ignore, we're just testing that our creds work
+    #        pass
+    #    else:
+    #        print("ERROR: Ensure your creds are valid.", flush=True)
+    #        print(e, flush=True)
+    #        exit(-1)
+    #except NoCredentialsError:
+    #    print("ERROR: No AWS credentials configured.", flush=True)
+    #    exit(-1)
 
     print("* Getting region names", flush=True)
     ec2 = session.client("ec2")
