@@ -227,7 +227,7 @@ def collect(arguments):
         session_data["profile_name"] = arguments.profile_name
 
     session = boto3.Session(**session_data)
-    sts = session.client("sts", endpoint_url="https://sts.ap-southeast-1.amazonaws.com")
+    sts = session.client("sts")
     try:
         sts.get_caller_identity()
     except ClientError as e:
